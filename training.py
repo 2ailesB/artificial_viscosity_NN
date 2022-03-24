@@ -5,8 +5,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 # data
-train_dataloaeder = None
-test_dataloaeder = None
+train_dataloader = None
+test_dataloader = None
 
 # model
 K = 4
