@@ -14,12 +14,12 @@ class smoothness_classifier(nn.Module):
         super().__init__() # TODO : clean network construction
         self.net = nn.Sequential(nn.Linear(indim, h[0]), nn.ELU(alpha), 
                                 nn.Dropout(lbd),
-                                nn.Linear(h[0], h[0]), nn.ELU(alpha), 
-                                nn.Linear(h[0], h[0]), nn.ELU(alpha), 
-                                nn.Linear(h[0], outdim), nn.Softmax())
+                                nn.Linear(h[0], h[1]), nn.ELU(alpha), 
+                                nn.Linear(h[1], h[2]), nn.ELU(alpha), 
+                                nn.Linear(h[2], outdim), nn.Softmax())
 
     def forward(self, x):
         return self.net(x)
 
     def predict(self, x):
-        return torch.argmax(self.net(x), dim=1)
+        return torch.argmax(self.net(x), dim=1) # x is (128, 7) et self.net(x) is (128, 4)
