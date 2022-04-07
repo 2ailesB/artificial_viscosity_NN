@@ -7,13 +7,15 @@ from datasets.fourriercollocation import compute_fourier, select_stencil
 
 def compute_fis(function, x, parameters):
     fs = np.zeros((len(parameters), len(x)))
+    four = np.zeros((len(parameters), len(x)))
     for i, parameter in enumerate(parameters):
-        fs[i, :] = compute_fourier(function(x, parameter)) #(nbparams, 401)
-    return fs
+        fs[i, :] = function(x, parameter) #(nbparams, 401)
+        four[i, :] = compute_fourier(function(x, parameter)) #(nbparams, 401)
+    return fs, four
 
 def prepare_f1(parameters):
     x = np.linspace(0, 2*pi, 401)
-    fs = compute_fis(f1, x, parameters) # evaluate function for all sets of parameters
+    fs, _ = compute_fis(f1, x, parameters) # evaluate function for all sets of parameters
     D = ((x >= 0) & (x <= 2*pi)) # compute domain for sampling
     fs = fs[:, D] # reduce function to the domain
     ech = select_stencil(fs, 7) #(nb params, 7)
@@ -21,7 +23,7 @@ def prepare_f1(parameters):
 
 def prepare_f2(parameters):
     x = np.linspace(0, 2*pi, 401)
-    fs = compute_fis(f2, x, parameters)
+    fs, _ = compute_fis(f2, x, parameters)
     D = ((x >= 3.53) & (x <= 5.89))
     fs = fs[:, D] # reduce function to the domain
     ech = select_stencil(fs, 7)
@@ -29,7 +31,7 @@ def prepare_f2(parameters):
 
 def prepare_f345(parameters, function, label):
     x = np.linspace(0, 2*pi, 401)
-    fs = compute_fis(function, x, parameters)
+    fs, _ = compute_fis(function, x, parameters)
     ech = np.zeros((fs.shape[0], 7))
     for i, parameter in enumerate(parameters):
         _, _, a3 = parameter[0], parameter[1], parameter[2] ### TODO
@@ -53,7 +55,6 @@ def create_dataset():
     f5s = prepare_f345(af345, f5, 2)
 
     dataset = np.concatenate((f1s, f2s, f3s, f4s, f5s), axis=0)
-
 
     return dataset
 

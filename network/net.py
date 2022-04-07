@@ -16,9 +16,10 @@ class smoothness_classifier(nn.Module):
                                 nn.Dropout(lbd),
                                 nn.Linear(h[0], h[1]), nn.ELU(alpha), 
                                 nn.Linear(h[1], h[2]), nn.ELU(alpha), 
-                                nn.Linear(h[2], outdim), nn.Softmax())
+                                nn.Linear(h[2], outdim) , nn.Softmax(dim=1))
 
     def forward(self, x):
+        print(x, self.net(x))
         return self.net(x)
 
     def predict(self, x):

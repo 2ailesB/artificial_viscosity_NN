@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import datetime
 
 from datasets.inout import csv2np
+from datasets.preprocess import preprocessing
 from utils.metrics import accuracy
 from network.net import smoothness_classifier
 
@@ -54,6 +55,7 @@ for epoch in range(epochs):
     epoch_accTest = []
     for X, y in train_dataloader: # X is (128, 7), y is 128
         y = y.to(torch.long)
+        X = preprocessing(X)
         yhat = model(X) # yhat is (128, 4)
         optim.zero_grad()
         l = loss(yhat, y)
@@ -72,6 +74,7 @@ for epoch in range(epochs):
 
     for X, y in test_dataloader:
         y = y.to(torch.long)
+        X = preprocessing(X)
         yhat = model(X)
         ltest = loss(yhat, y)
         epoch_ltest.append(ltest)
