@@ -8,7 +8,7 @@ from datasets.fourriercollocation import compute_fourier, select_stencil
 def compute_fis(function, x, parameters):
     fs = np.zeros((len(parameters), len(x)))
     for i, parameter in enumerate(parameters):
-        fs[i, :] = function(x, parameter) #(nbparams, 401)
+        fs[i, :] = compute_fourier(function(x, parameter)) #(nbparams, 401)
     return fs
 
 def prepare_f1(parameters):
@@ -21,7 +21,7 @@ def prepare_f1(parameters):
 
 def prepare_f2(parameters):
     x = np.linspace(0, 2*pi, 401)
-    fs = compute_fis(f1, x, parameters)
+    fs = compute_fis(f2, x, parameters)
     D = ((x >= 3.53) & (x <= 5.89))
     fs = fs[:, D] # reduce function to the domain
     ech = select_stencil(fs, 7)
@@ -53,6 +53,7 @@ def create_dataset():
     f5s = prepare_f345(af345, f5, 2)
 
     dataset = np.concatenate((f1s, f2s, f3s, f4s, f5s), axis=0)
+
 
     return dataset
 
