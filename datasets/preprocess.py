@@ -1,18 +1,23 @@
 import torch
+import matplotlib.pyplot as plt
 
-from datasets.fourriercollocation import compute_fourier, compute_torch_fourier
-
-def preprocessing(X):
-    u = compute_torch_fourier(X) # X and u are (:, 7)
-    a = torch.sub(X.T, X[:, 0]).T
-    b = (u[:, 6] - u[:, 0]) / (X[:, 6] - X[:, 0])
+def preprocessing(u, x):
+    'u are the dataset X and x are the absisses x'
+    a = torch.sub(x.T, x[:, 0]).T
+    b = (u[:, 6] - u[:, 0]) / (x[:, 6] - x[:, 0])
     l = torch.add(torch.mul(a.T, b), u[:, 0]).T
     usharp = u - l # (:, 7), :0 and :6 ~ 0
+    plt.figure()
+    plt.plot(x[1, :], u[1, :], 'x')
+    plt.plot(x[1, :], usharp[1, :], 'x')
     M = torch.max(usharp, dim=1)[0]
     m = torch.min(usharp, dim=1)[0]
     num = torch.sub(2 * usharp.T, M + m).T
     denom = (M - m)
     ustar = torch.div(num.T, denom).T #(:, 7)
+    plt.plot(x[1, :], ustar[1, :], 'x')
+    plt.legend(['u', 'usharp', 'ustar'])
+    plt.show()
     return ustar 
 
 if __name__ == "__main__":

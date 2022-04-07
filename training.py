@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, TensorDataset
 import datetime
+import numpy as np
 
 from datasets.inout import csv2np
 from datasets.preprocess import preprocessing
@@ -13,14 +14,16 @@ from utils.metrics import accuracy
 from network.net import smoothness_classifier
 
 dataset = csv2np('data/custom_data.csv')
+abscisses = csv2np('data/custom_xs.csv')
 
-dataset_train, dataset_test= train_test_split(dataset, test_size=0.2, random_state=0)
+dataset_train, dataset_test = train_test_split(np.concatenate((dataset, abscisses), axis=1), test_size=0.2, random_state=0)
 features_train, features_test = torch.Tensor(dataset_train[:, 0:7]), torch.Tensor(dataset_test[:, 0:7])
 labels_train, labels_test = torch.Tensor(dataset_train[:, 7]), torch.Tensor(dataset_test[:, 7])
+abscisses_train, abscisses_test = torch.Tensor(dataset_train[:, 8:]), torch.Tensor(dataset_test[:, 8:])
 
 # data
-train_dataloader = DataLoader(TensorDataset(features_train, labels_train), batch_size=128)
-test_dataloader = DataLoader(TensorDataset(features_test, labels_test), batch_size=128)
+train_dataloader = DataLoader(TensorDataset(torch.cat((features_train, abscisses_train), dim=1), labels_train), batch_size=128)
+test_dataloader = DataLoader(TensorDataset(torch.cat((features_test, abscisses_test), dim=1), labels_test), batch_size=128)
 
 # model
 K = 4
@@ -54,8 +57,9 @@ for epoch in range(epochs):
     epoch_ltest = []
     epoch_accTest = []
     for X, y in train_dataloader: # X is (128, 7), y is 128
+        X, abscisses = X[:, :7], X[:, 7:].detach()
         y = y.to(torch.long)
-        X = preprocessing(X)
+        # X = preprocessing(X, abscisses)
         yhat = model(X) # yhat is (128, 4)
         optim.zero_grad()
         l = loss(yhat, y)
@@ -73,8 +77,9 @@ for epoch in range(epochs):
         print(f'training accuracy at epoch {epoch} is {torch.Tensor(epoch_acc).mean()}') # TODO:compute accuracy : see utils
 
     for X, y in test_dataloader:
+        X, abscisses = X[:, :7], X[:, 7:].detach()
         y = y.to(torch.long)
-        X = preprocessing(X)
+        # X = preprocessing(X, abscisses)
         yhat = model(X)
         ltest = loss(yhat, y)
         epoch_ltest.append(ltest)
