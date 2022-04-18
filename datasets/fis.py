@@ -55,6 +55,6 @@ if __name__ == "__main__":
     plt.xlabel('x')
     plt.ylabel('f5(x)')
     plt.title('f5(x)')
-    plt.show()
     plt.savefig('results/functionsf1-5.png')
-    plt.close()
+    # plt.show()
+    # plt.close()
