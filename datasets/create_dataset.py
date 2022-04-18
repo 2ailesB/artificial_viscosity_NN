@@ -55,7 +55,6 @@ def create_dataset():
     f1s, ab1 = prepare_f1(af1)
     f2s, ab2 = prepare_f2(af2)
     f3s, ab3 = prepare_f345(af345, f3, 0)
-    
     f4s, ab4 = prepare_f345(af345, f4, 1)
     f5s, ab5 = prepare_f345(af345, f5, 2)
 

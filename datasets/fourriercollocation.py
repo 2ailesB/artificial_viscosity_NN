@@ -10,7 +10,9 @@ def compute_torch_fourier(x):
     return torch.Tensor(fft.fft(x_np)) #(:, 7)
 
 def select_stencil(x, d, n):
-    ps = np.random.randint(n // 2, x.shape[1] - n // 2, size=x.shape[0])
+    "x = points, d = domain, n = number to sample (7)"
+    ps = np.random.randint(n // 2, x.shape[1] - n // 2, size=x.shape[0]) 
+    # TODO : sample plusieurs données pour avoir le bon nombre d'échantillons
     xs = np.zeros((x.shape[0], n))
     ds = np.zeros((x.shape[0], n))
     for i, p in enumerate(ps):
