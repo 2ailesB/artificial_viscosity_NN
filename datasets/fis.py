@@ -4,27 +4,37 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def f1(x, a):
+    if a==0:
+        a += 0.1# TODO : cf bugs : avoid constant functions and nans during trainng
     return np.sin(2 * x * a)
 
 
 def f2(x, a):
+    if a==0:
+        a += 0.1# TODO : cf bugs : avoid constant functions and nans during trainng
     return a * np.abs(x - pi)
 
 
 def f3(x, a):
     a1, a2, a3 = a[0], a[1], a[2]
+    if a1==a2:
+        a2 += 0.1 # TODO : cf bugs : avoid constant functions and nans during trainng
     return a1 * (np.abs(x - pi) <= a3) + a2 * (np.abs(x - pi) > a3)
 
 
 def f4(x, a):
     a1, a2, a3 = a[0], a[1], a[2]
     xmpi = np.abs(x - pi)
+    # if a1 == 0 & a2==0:
+    #     a1+=0.1# TODO : cf bugs : avoid constant functions and nans during trainng
     return (a1 * xmpi - a1 * a3) * (xmpi <= a3) + (a2 * xmpi - a2 * a3) * (xmpi > a3)
 
 
 def f5(x, a):
     a1, a2, a3 = a[0], a[1], a[2]
     xmpi = np.abs(x - pi)
+    # if a1 == 0 & a2==0:
+    #     a1+=0.1# TODO : cf bugs : avoid constant functions and nans during trainng
     return (0.5 * a1 * xmpi ** 2 - a1 * a3) * (xmpi <= a3) + (a2 * xmpi ** 2 - a2 * a3 - 0.5 * a3 ** 2 * (a1 - a2)) * (xmpi > a3)
 
 if __name__ == "__main__":

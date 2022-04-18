@@ -62,9 +62,11 @@ for epoch in range(epochs):
     epoch_ltest = []
     epoch_accTest = []
     for X, y in train_dataloader:  # X is (128, 7), y is 128
-        X, abscisses = X[:, :7], X[:, 7:].detach()
+        X, abscisses = X[:, :7], X[:, 7:]
         y = y.to(torch.long)
-        # X = preprocessing(X, abscisses)
+        X, y = preprocessing(X, abscisses, y)
+        # print(X.isnan().sum(), abscisses.isnan().sum(), y.isnan().sum())
+        # print(X[X.isnan().sum(dim=1), :], y[X.isnan().sum(dim=1)])
         yhat = model(X)  # yhat is (128, 4)
         optim.zero_grad()
         l = loss(yhat, y)
@@ -87,9 +89,9 @@ for epoch in range(epochs):
             f'training accuracy at epoch {epoch} is {torch.Tensor(epoch_acc).mean()}')
 
     for X, y in test_dataloader:
-        X, abscisses = X[:, :7], X[:, 7:].detach()
+        X, abscisses = X[:, :7], X[:, 7:]
         y = y.to(torch.long)
-        # X = preprocessing(X, abscisses)
+        X, y = preprocessing(X, abscisses, y)
         yhat = model(X)
         ltest = loss(yhat, y)
         epoch_ltest.append(ltest)

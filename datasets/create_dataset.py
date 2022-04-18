@@ -43,8 +43,7 @@ def prepare_f345(parameters, function, label):
             D = ((x >= a3 - 0.05) & (x <= a3 + 0.06)) # add some points in D
         Domain = x[D]
         cur_fs = np.expand_dims(fs[i, D], 0)# reduce function to the domain
-        ech[i, :], idx = select_stencil(cur_fs, Domain, 7)
-        d[i, :] = idx
+        ech[i, :], d[i, :] = select_stencil(cur_fs, Domain, 7)
     return np.concatenate((ech, label * np.ones((ech.shape[0], 1))), axis = 1), d
 
 def create_dataset():
@@ -56,6 +55,7 @@ def create_dataset():
     f1s, ab1 = prepare_f1(af1)
     f2s, ab2 = prepare_f2(af2)
     f3s, ab3 = prepare_f345(af345, f3, 0)
+    
     f4s, ab4 = prepare_f345(af345, f4, 1)
     f5s, ab5 = prepare_f345(af345, f5, 2)
 
