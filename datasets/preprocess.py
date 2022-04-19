@@ -20,6 +20,7 @@ def preprocessing(u, x, y=None, verbose=False):
     nan_idx = torch.any(ustar.isnan(), dim=1)
     ustar=ustar[~nan_idx, :]
     if y is not None:
+        y[torch.abs(M-m)<0.075] = 3 # cf remark 5.1 : if data are smooth enough, we consider them as very regular functions
         y = y[~nan_idx]
     # print(u.isnan().sum(), usharp.isnan().sum(), ustar.isnan().sum())
     # print(ustar.shape, y.shape)

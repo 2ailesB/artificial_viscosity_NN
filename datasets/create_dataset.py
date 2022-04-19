@@ -3,7 +3,7 @@ import numpy as np
 
 from datasets.inout import np2csv
 from datasets.fis import f1, f2, f3, f4, f5
-from datasets.fourriercollocation import compute_fourier, select_stencil
+from datasets.fourriercollocation import compute_fourier, select_stencil, select_stencils
 
 def compute_fis(function, x, parameters):
     fs = np.zeros((len(parameters), len(x)))
@@ -13,29 +13,29 @@ def compute_fis(function, x, parameters):
         four[i, :] = compute_fourier(function(x, parameter)) #(nbparams, 401)
     return fs, four
 
-def prepare_f1(parameters):
+def prepare_f1(parameters, m=1):
     x = np.linspace(0, 2*pi, 401)
     _, fs = compute_fis(f1, x, parameters) # evaluate function for all sets of parameters
     D = ((x >= 0) & (x <= 2*pi)) # compute domain for sampling
     Domain = x[D]
     fs = fs[:, D] # reduce function to the domain
-    ech, d = select_stencil(fs, Domain, 7) #(nb params, 7)
+    ech, d = select_stencils(fs, Domain, 7, m) #(nb params, 7)
     return np.concatenate((ech, 3 * np.ones((ech.shape[0], 1))), axis = 1), d
 
-def prepare_f2(parameters):
+def prepare_f2(parameters, m=1):
     x = np.linspace(0, 2*pi, 401)
     _, fs = compute_fis(f2, x, parameters)
     D = ((x >= 3.53) & (x <= 5.89))
     Domain = x[D]
     fs = fs[:, D] # reduce function to the domain
-    ech, d = select_stencil(fs, Domain, 7)
+    ech, d = select_stencils(fs, Domain, 7, m)
     return np.concatenate((ech, 3 * np.ones((ech.shape[0], 1))), axis = 1), d
 
-def prepare_f345(parameters, function, label):
+def prepare_f345(parameters, function, label, m=1):
     x = np.linspace(0, 2*pi, 401)
     _, fs = compute_fis(function, x, parameters)
-    ech = np.zeros((fs.shape[0], 7))
-    d = np.zeros((fs.shape[0], 7))
+    ech = np.zeros((fs.shape[0]*m, 7))
+    d = np.zeros((fs.shape[0]*m, 7))
     for i, parameter in enumerate(parameters):
         _, _, a3 = parameter[0], parameter[1], parameter[2] ### TODO
         D = ((x >= a3 - 0.05) & (x <= a3 + 0.05))
@@ -43,7 +43,7 @@ def prepare_f345(parameters, function, label):
             D = ((x >= a3 - 0.05) & (x <= a3 + 0.06)) # add some points in D
         Domain = x[D]
         cur_fs = np.expand_dims(fs[i, D], 0)# reduce function to the domain
-        ech[i, :], d[i, :] = select_stencil(cur_fs, Domain, 7)
+        ech[i*m:(i+1)*m, :], d[i*m:(i+1)*m, :] = select_stencils(cur_fs, Domain, 7, m)
     return np.concatenate((ech, label * np.ones((ech.shape[0], 1))), axis = 1), d
 
 def create_dataset():
@@ -52,11 +52,21 @@ def create_dataset():
     af2 = np.arange(-10, 11, 1)
     af345 = np.meshgrid(np.arange(-10, 10, 1), np.arange(-10, 10, 1), np.arange(0.25, 2.6, 0.25)) # TODO : do a grid
     af345 = np.concatenate((np.expand_dims(af345[0].flatten(), 1), np.expand_dims(af345[1].flatten(), 1), np.expand_dims(af345[2].flatten(), 1)), axis=1)
-    f1s, ab1 = prepare_f1(af1)
-    f2s, ab2 = prepare_f2(af2)
-    f3s, ab3 = prepare_f345(af345, f3, 0)
-    f4s, ab4 = prepare_f345(af345, f4, 1)
-    f5s, ab5 = prepare_f345(af345, f5, 2)
+    f1s, ab1 = prepare_f1(af1, 750) # 60000 data
+    # f1s, ab1 = prepare_f1(af1)
+    print(f'{f1s.shape[0]} data added for f1')
+    f2s, ab2 = prepare_f2(af2, 3000) # 630000 data
+    # f2s, ab2 = prepare_f2(af2)
+    print(f'{f2s.shape[0]} data added for f2')
+    f3s, ab3 = prepare_f345(af345, f3, 0, 25) # 100000
+    # f3s, ab3 = prepare_f345(af345, f3, 0)
+    print(f'{f3s.shape[0]} data added for f3')
+    f4s, ab4 = prepare_f345(af345, f4, 1, 25) # 100000
+    # f4s, ab4 = prepare_f345(af345, f4, 1)
+    print(f'{f4s.shape[0]} data added for f4')
+    f5s, ab5 = prepare_f345(af345, f5, 2, 25) # 100000
+    # f5s, ab5 = prepare_f345(af345, f5, 2)
+    print(f'{f5s.shape[0]} data added for f5')
 
     # print(f1s.shape, f2s.shape, f3s.shape, f4s.shape, f5s.shape)
     # print(ab1.shape, ab2.shape, ab3.shape, ab4.shape, ab5.shape)

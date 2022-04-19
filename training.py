@@ -24,6 +24,9 @@ labels_train, labels_test = torch.Tensor(
 abscisses_train, abscisses_test = torch.Tensor(
     dataset_train[:, 8:]), torch.Tensor(dataset_test[:, 8:])
 
+print(f'Training on {features_train.shape[0]} samples') # 338400
+print(f'Testing on {features_test.shape[0]} samples') # 84600
+
 # data
 train_dataloader = DataLoader(TensorDataset(torch.cat(
     (features_train, abscisses_train), dim=1), labels_train), batch_size=128)
